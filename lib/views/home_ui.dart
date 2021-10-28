@@ -17,6 +17,55 @@ class _HomeUIState extends State<HomeUI> {
   TextEditingController txMoney = TextEditingController();
   TextEditingController txPerson = TextEditingController();
   TextEditingController txTip = TextEditingController();
+
+  showWarningDialog(context, msg) {
+    //เรียกใช้ฟังก์ชั่น Dialog
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Container(
+            color: Colors.deepPurple,
+            padding: EdgeInsets.only(
+              top: 10.0,
+              bottom: 10.0,
+            ),
+            child: Align(
+              alignment: Alignment.center,
+              child: Text(
+                'คำเตือน',
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ),
+          content: Text(
+            msg,
+          ),
+          actions: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: Text(
+                    'ตกลง',
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    primary: Colors.deepPurple,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -182,15 +231,43 @@ class _HomeUIState extends State<HomeUI> {
               ElevatedButton(
                 onPressed: () {
                   //ตรวจสอบป้อนหรือสิ่งที่ต้องป้อน ถ้ายังต้องแสดง Dialog เตือน
+                  if (txMoney.text.length == 0) {
+                    showWarningDialog(context, 'ป้องเงินด้วยจ้า');
+                  } else if (txPerson.text.length == 0) {
+                    showWarningDialog(context, 'ป้องคนด้วยจ้า');
+                  } else if (checkTip == true) {
+                  } else {
+                    if (checkTip == true) {
+                      if (txTip.text.length == 0) {
+                        showWarningDialog(context, 'ป้องทิปด้วยจ้า');
+                        return;
+                      }
+                    }
+                    double money = 0;
+                    int person = 0;
+                    double tip = 0;
+                    double moneyShare = 0;
+                    //แปลงสิ่งที่ป้อนใน Textfield เป็นตัวเลขเพื่อคำนวณ
+                    money = double.parse(txMoney.text);
+                    person = int.parse(txPerson.text);
+                    tip = checkTip == true ? double.parse(txTip.text) : 0;
+                    moneyShare = (money + tip) / person;
+
+                    //กรณีป้อนครบเรียบร้อยแล้ว
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) {
+                        return MoneyshareUI(
+                          money: money,
+                          person: person,
+                          tip: tip,
+                          moneyShare: moneyShare,
+                        );
+                      }),
+                    );
+                  }
                   //กรณีหน้าป้อนครบเรียบร้อยก็นำไปคำนวณ เมือ่คำนวณเรียบร้อยส่งไปยังหน้า moneyshareUI
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context){
-                        return MoneyshareUI();
-                      },
-                    ),
-                  );
+                  
                 },
                 child: Text(
                   'คำนวณ',
